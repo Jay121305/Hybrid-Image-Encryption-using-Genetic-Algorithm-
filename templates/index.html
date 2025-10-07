@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hybrid Crypto + GA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center p-8">
+
+  <h1 class="text-3xl font-bold mb-8">🔐 Hybrid Crypto + Genetic Algorithm Platform</h1>
+
+  <!-- IMAGE SECTION -->
+  <div class="bg-gray-800 p-6 rounded-2xl shadow-lg w-full max-w-lg mb-10">
+    <h2 class="text-2xl font-semibold mb-4">🖼️ Image Encryption / Decryption</h2>
+
+    <form action="/process_image" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4">
+      <input type="file" name="image" required class="p-2 rounded text-gray-900 bg-gray-200" />
+
+      <select name="action" class="p-2 rounded text-gray-900 bg-gray-200">
+        <option value="encrypt">Encrypt</option>
+        <option value="decrypt">Decrypt</option>
+      </select>
+
+      <button type="submit" class="bg-blue-600 hover:bg-blue-700 py-2 rounded font-semibold">Run</button>
+    </form>
+
+    {% if message %}
+    <div class="mt-6 bg-gray-700 p-4 rounded-lg">
+      <p class="text-green-400 font-semibold mb-2">{{ message|safe }}</p>
+
+      {% if image_result %}
+        <h3 class="text-lg font-semibold mb-2">{{ result_label }}</h3>
+        <img src="{{ image_result }}" alt="Result Image" class="rounded-lg border border-gray-600 mb-2 max-h-80" />
+        <a href="{{ download_link }}" class="bg-green-600 hover:bg-green-700 px-4 py-1 rounded">⬇ Download</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- TEXT SECTION -->
+  <div class="bg-gray-800 p-6 rounded-2xl shadow-lg w-full max-w-lg">
+    <h2 class="text-2xl font-semibold mb-4">✉️ Text Encryption / Decryption</h2>
+
+    <form action="/process_text" method="POST" class="flex flex-col gap-4">
+      <textarea name="user_text" placeholder="Enter your text here..." required class="p-2 rounded text-gray-900 bg-gray-200 h-24"></textarea>
+
+      <select name="text_action" class="p-2 rounded text-gray-900 bg-gray-200">
+        <option value="encrypt">Encrypt</option>
+        <option value="decrypt">Decrypt</option>
+      </select>
+
+      <button type="submit" class="bg-purple-600 hover:bg-purple-700 py-2 rounded font-semibold">Run</button>
+    </form>
+
+    {% if text_message %}
+    <div class="mt-6 bg-gray-700 p-4 rounded-lg">
+      <p class="text-green-400 font-semibold mb-2">{{ text_message|safe }}</p>
+
+      {% if text_output %}
+        <h3 class="text-lg font-semibold mb-2">{{ text_label }}</h3>
+        <textarea readonly class="w-full p-2 rounded bg-gray-200 text-gray-900">{{ text_output }}</textarea>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</body>
+</html>

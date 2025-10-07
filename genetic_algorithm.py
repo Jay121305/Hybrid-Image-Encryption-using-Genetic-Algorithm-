@@ -1,88 +1,67 @@
-# genetic_algorithm.py
-import numpy as np
 import random
-import matplotlib.pyplot as plt
-import csv
-import os
-from encryption import hybrid_encrypt
 
-def fitness_function(individual, plaintext):
-    key1, key2 = individual
-    cipher = hybrid_encrypt(plaintext, key1, key2)
-    probs = [cipher.count(c)/len(cipher) for c in set(cipher)]
-    entropy = -sum([p*np.log2(p) for p in probs]) if len(probs) > 0 else 0.0
-    chi_square = sum([(cipher.count(c) - len(cipher)/26)**2/(len(cipher)/26) for c in set(cipher)]) if len(cipher)>0 else 0.0
-    return entropy / (1 + chi_square)
+# Example Vigenère keyspace (A–Z only)
+CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-def run_ga(plaintext, vig_len=4, perm_len=5, population_size=30, generations=50,
-           crossover_rate=0.8, mutation_rate_vig=0.1, mutation_rate_perm=0.2,
-           elitism_k=2, verbose=True):
+def fitness_function(candidate):
+    """Dummy fitness — you can plug your own logic here."""
+    # Just a placeholder function simulating fitness scores
+    return sum(ord(c) for c in candidate) % 100 / 100.0
 
-    def random_key1():
-        return ''.join(random.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ") for _ in range(vig_len))
+def run_genetic_algorithm(
+    population_size=20,
+    generations=40,
+    key_length=4,
+    image_key_length=32
+):
+    """Runs a simple GA to evolve text and image keys."""
+    print("Running GA — this may take a bit...")
 
-    def random_key2():
-        perm = list(range(perm_len))
-        random.shuffle(perm)
-        return perm
+    # Initialize population
+    population = [''.join(random.choice(CHARSET) for _ in range(key_length))
+                  for _ in range(population_size)]
 
-    population = [(random_key1(), random_key2()) for _ in range(population_size)]
-    history_best, history_avg = [], []
+    best_candidate = None
+    best_fitness = 0.0
 
-    for gen in range(generations):
-        fitnesses = [fitness_function(ind, plaintext) for ind in population]
-        best_fit = max(fitnesses)
-        avg_fit = np.mean(fitnesses)
-        history_best.append(best_fit)
-        history_avg.append(avg_fit)
-        if verbose and gen % 5 == 0:
-            print(f"Gen {gen:3d} | Best: {best_fit:.4f} | Avg: {avg_fit:.4f}")
-        sorted_pop = [x for _, x in sorted(zip(fitnesses, population), reverse=True)]
-        new_population = sorted_pop[:elitism_k]
-        def select():
-            total = sum(fitnesses)
-            if total == 0:
-                return random.choice(population)
-            pick = random.uniform(0, total)
-            current = 0
-            for ind, fit in zip(population, fitnesses):
-                current += fit
-                if current > pick:
-                    return ind
-            return population[-1]
+    for gen in range(generations + 1):
+        fitness_scores = [fitness_function(ind) for ind in population]
+
+        # Track best
+        best_idx = max(range(len(population)), key=lambda i: fitness_scores[i])
+        if fitness_scores[best_idx] > best_fitness:
+            best_fitness = fitness_scores[best_idx]
+            best_candidate = population[best_idx]
+
+        avg_fitness = sum(fitness_scores) / len(fitness_scores)
+        if gen % 5 == 0:
+            print(f"Gen {gen:3d} | Best: {best_fitness:.4f} | Avg: {avg_fitness:.4f}")
+
+        # Selection: pick top 50%
+        selected = [population[i] for i in sorted(range(len(fitness_scores)),
+                    key=lambda i: fitness_scores[i], reverse=True)[:population_size // 2]]
+
+        # Crossover + Mutation
+        new_population = []
         while len(new_population) < population_size:
-            p1, p2 = select(), select()
-            if random.random() < crossover_rate:
-                cut = random.randint(1, vig_len-1) if vig_len>1 else 1
-                child1 = (p1[0][:cut] + p2[0][cut:], p1[1][:cut] + p2[1][cut:])
-            else:
-                child1 = p1
-            if random.random() < mutation_rate_vig:
-                pos = random.randint(0, vig_len-1)
-                s = list(child1[0])
-                s[pos] = random.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-                child1 = (''.join(s), child1[1])
-            if random.random() < mutation_rate_perm:
-                a, b = random.sample(range(perm_len), 2)
-                child1[1][a], child1[1][b] = child1[1][b], child1[1][a]
-            new_population.append(child1)
-        population = new_population[:population_size]
+            parent1, parent2 = random.sample(selected, 2)
+            cut = random.randint(1, key_length - 1)
+            child = parent1[:cut] + parent2[cut:]
+            if random.random() < 0.2:
+                pos = random.randint(0, key_length - 1)
+                child = child[:pos] + random.choice(CHARSET) + child[pos + 1:]
+            new_population.append(child)
 
-    # choose best final individual
-    final_fitnesses = [fitness_function(ind, plaintext) for ind in population]
-    best_idx = int(np.argmax(final_fitnesses))
-    best_ind = population[best_idx]
-    # save logs
-    os.makedirs("results", exist_ok=True)
-    with open("results/ga_fitness_log.csv", "w", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow(["Generation", "Best", "Average"])
-        for i,(b,a) in enumerate(zip(history_best, history_avg)):
-            writer.writerow([i,b,a])
-    plt.figure()
-    plt.plot(history_best, label="best")
-    plt.plot(history_avg, label="avg")
-    plt.legend(); plt.grid(True)
-    plt.savefig("results/ga_fitness_plot.png")
-    plt.close()
-    return {"best_chromosome": best_ind, "best_fitness": final_fitnesses[best_idx]}
+        population = new_population
+
+    # Convert text key to numeric image key (dummy mapping)
+    image_key = [random.randint(0, 31) for _ in range(image_key_length)]
+
+    return best_candidate, image_key
+
+
+# Allow testing directly
+if __name__ == "__main__":
+    text_key, image_key = run_genetic_algorithm()
+    print(f"Text key: {text_key}")
+    print(f"Image key: {image_key}")
