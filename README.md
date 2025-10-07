@@ -96,21 +96,23 @@ The GA typically runs for 40-50 generations, continuously improving the encrypti
 ### Image Encryption Example
 
 **Encrypted Image:**
-![Image Encryption Result](https://github.com/user-attachments/assets/example-encryption.png)
+![Image Encryption Result](<img width="1889" height="859" alt="Screenshot 2025-10-07 161341" src="https://github.com/user-attachments/assets/ef52f9ed-005a-4dba-aa16-50202f00cee0" />)
+
 *Original image is transformed into encrypted noise pattern*
 
 **Decrypted Image:**
-![Image Decryption Result](https://github.com/user-attachments/assets/example-decryption.png)
+![Image Decryption Result](<img width="1888" height="844" alt="Screenshot 2025-10-07 161415" src="https://github.com/user-attachments/assets/368db707-7236-40b3-baa8-0c31188f0a98" />)
+
 *Encrypted image is successfully recovered to original form*
 
 ### Text Encryption Example
 
 **Encrypted Text:**
-![Text Encryption Result](https://github.com/user-attachments/assets/example-text-encryption.png)
+![Text Encryption Result](<img width="580" height="561" alt="Screenshot 2025-10-07 161524" src="https://github.com/user-attachments/assets/2a5236cf-ae19-4a73-976c-d7ff548e1fc6" />)
 *Plain text: "HELLOWORLD" → Encrypted: "WEDRDWGXAD"*
 
 **Decrypted Text:**
-![Text Decryption Result](https://github.com/user-attachments/assets/example-text-decryption.png)
+![Text Decryption Result](<img width="580" height="561" alt="Screenshot 2025-10-07 161524" src="https://github.com/user-attachments/assets/5ba0ccd1-ab89-4ab2-ad48-891ff144727a" />)
 *Encrypted text is successfully decrypted back to: "HELLOWORLD"*
 
 ## 🎨 User Interface
